@@ -1,49 +1,45 @@
-import math
-def justifySpace(emptySpace, nSpaces):
-    return math.ceil(emptySpace/nSpaces)
+def splitWords(words, curr, L):
+    if len(words) == 1:
+        return words[0] + " " * (L - curr)
+    to_all = (L - curr) // (len(words) - 1)
+    additional = (L - curr) % (len(words) - 1)
+    res = words.pop(0)
 
-def getWord(stringBuffer, l, currentLineSize):
-    spaces = len(stringBuffer)-1
-    emptySpace = l - currentLineSize + len(stringBuffer) - 1
-    i = 0
-    newLine = []
-    space = 0
-    while(i < len(stringBuffer)-1):
-        newLine.append(stringBuffer[i])
-        space = justifySpace(emptySpace, spaces)
-        newLine.append(" "*space)
-        emptySpace-= space
-        spaces-=1
-        i+=1
-        space += len(stringBuffer[i]) + space
-
-    newLine.append(stringBuffer[-1])
-    if(space < l):
-        newLine.append(" ")
-    return "".join(newLine)
-def textJustification(words, l):
-    results = []
-    stringBuffer = []
-    currentLineSize = 0
     for word in words:
-        wordSize = len(word)
-        if(currentLineSize + wordSize <= l):
-            stringBuffer.append(word)
-            
-            currentLineSize += len(word)
-            currentLineSize+=1
-        else:
-            results.append(getWord(stringBuffer, l, currentLineSize))
-            
-            stringBuffer=[word]
-            currentLineSize = len(word)
+        res += " " * (to_all + 1)
+        if additional > 0:
+            res += " "
+            additional -= 1
+        res += word
+    return res
 
-    if(len(stringBuffer)>0):
-        results.append(getWord(stringBuffer, l, currentLineSize))
-    return results
+def fullJustify(A, B):
+
+    result = []
+    curr = 0
+    tmp = []
+    for word in A:
+        if not word:
+            continue
+        if curr + len(word) <= B:
+            curr += len(word) + 1
+            tmp.append(word)
+        else:
+            result.append(splitWords(tmp, curr - 1, B))
+            tmp = [word]
+            curr = len(word) + 1
+    if curr:
+        result.append(' '.join(tmp) + ' ' * (B - curr + 1))
+    return result
+        
 
 words = ["This", "is", "an", "example", "of", "text", "justification."]
-print(textJustification(words, 16))
+print(fullJustify(words, 16))
 
-words = ["Two", "words."]
-print(textJustification(words, 11))
+# words = ["Two", "words."]
+# print(textJustification(words, 11))
+
+words = [ "What", "must", "be", "shall", "be." ]
+r = fullJustify(words, 12)
+for line in r:
+    print(len(line), line)
